@@ -4,7 +4,6 @@ import { chromium } from "playwright";
 import pLimit from "p-limit";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
-import { getTVSubtitleVTT } from "./utils/tvSubtitles.js";
 dotenv.config();
 
 const app = express();
@@ -21,7 +20,7 @@ export const headers = {
 app.use(cors());
 app.use(json());
 
-// 1. Sirf chalne wali 100% sahi sites yahan rakhin hain
+// Sirf chalne wale 100% active domains
 const PROVIDERS = [
   "https://vidsrc.sh",
   "https://vidsrc.net",
@@ -37,7 +36,7 @@ export const COMMON_LANGUAGES = Object.keys(LANGUAGE_NAMES);
 
 let browser;
 
-// Global browser instance with automation bypass args
+// Anti-detection set kar ke global browser chalu karne ka function
 async function initBrowser() {
   browser = await chromium.launch({
     headless: true,
@@ -178,7 +177,7 @@ app.get("/extract", async (req, res) => {
     return res.json(cached.response);
   }
 
-  // 2. Naye clean URL structure ke mutabik format set kar diya hai
+  // Naye working format ke mutabik clean URL structure
   const urls = PROVIDERS.reduce((acc, domain) => {
     acc[domain] =
       type === "tv"
@@ -249,7 +248,10 @@ async function searchSubtitles(imdb_id) {
   return json.data
     .filter(
       (item) =>
-        item.attributes?.files?.[0]?.file_id &&
+        item.attributes &&
+        item.attributes.files &&
+        item.attributes.files[0] &&
+        item.attributes.files[0].file_id &&
         COMMON_LANGUAGES.includes(item.attributes.language)
     )
     .map((item) => {
