@@ -36,7 +36,7 @@ export const COMMON_LANGUAGES = Object.keys(LANGUAGE_NAMES);
 
 let browser;
 
-// Anti-detection set kar ke global browser chalu karne ka function
+// YAHAN PAR PROXY LAGAYI HAI BILKUL SAHI CONFIGURATION KE SATH
 async function initBrowser() {
   browser = await chromium.launch({
     headless: true,
@@ -44,7 +44,12 @@ async function initBrowser() {
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-blink-features=AutomationControlled'
-    ]
+    ],
+    proxy: {
+      server: 'http://webshare.io', 
+      username: 'weqpoeor-rotate',
+      password: 'qq0fo8vz4eui'
+    }
   });
 }
 initBrowser().catch(console.error);
@@ -177,7 +182,6 @@ app.get("/extract", async (req, res) => {
     return res.json(cached.response);
   }
 
-  // Naye working format ke mutabik clean URL structure
   const urls = PROVIDERS.reduce((acc, domain) => {
     acc[domain] =
       type === "tv"
@@ -250,12 +254,11 @@ async function searchSubtitles(imdb_id) {
       (item) =>
         item.attributes &&
         item.attributes.files &&
-        item.attributes.files[0] &&
-        item.attributes.files[0].file_id &&
+        item.attributes.files.file_id &&
         COMMON_LANGUAGES.includes(item.attributes.language)
     )
     .map((item) => {
-      const file = item.attributes.files[0];
+      const file = item.attributes.files;
       const lang = item.attributes.language;
       return {
         language: lang,
